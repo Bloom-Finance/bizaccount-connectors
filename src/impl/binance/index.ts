@@ -6,7 +6,19 @@ export class ProviderConnectorImpl
   extends ProviderConnector
   implements IProviderConnector
 {
-  async getBalance(): Promise<{ asset: string; balance: string }[]> {
+  async getBalance(): Promise<
+    {
+      asset: string;
+      balance: string;
+      description: string;
+      detail: {
+        address: string;
+        provider: string;
+        chain: string;
+        balance: string;
+      }[];
+    }[]
+  > {
     const apiKey = this._credentials.apiKey;
     const apiSecret = this._credentials.apiSecret;
     const client = new Spot(apiKey, apiSecret, {
@@ -16,6 +28,7 @@ export class ProviderConnectorImpl
     const balance: any[] = [];
     const myBalances = res.data.balances;
     const indexes = Object.keys(myBalances);
+    //add details to balance
     indexes.forEach((i) => {
       balance.push({
         asset: myBalances[i].asset,
@@ -25,4 +38,7 @@ export class ProviderConnectorImpl
     });
     return balance;
   }
+  // async getBalance(): Promise<{ asset: string; balance: string }[]> {
+
+  // }
 }

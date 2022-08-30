@@ -1,25 +1,30 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { ConnectorConfig, Providers } from '../@types/index';
-import fs from 'fs';
+import {
+  ProviderCredentials,
+  Providers,
+  Client,
+  Balance,
+} from '../@types/index';
 
-const setClient = <T extends Providers>(
-  credentials: any,
-  providerType: T,
-  config?: ConnectorConfig
-) => {
+const setClient = (providerConnection: ProviderCredentials[]): Client => {
+  const providers = providerConnection;
   return {
-    provider: providerType,
-    credentials,
-    getBalance: async () => {
-      // call impl
-      const {
-        ProviderConnectorImpl,
-      } = require(`../impl/${providerType}/index`);
-      const service = new ProviderConnectorImpl(credentials, config);
-      const balance = await service.getBalance();
-      return Promise.resolve(balance);
+    providers,
+    getProvider(id) {
+      //staff this function to return the provider object
     },
-  } as any;
+    getBalance() {
+      const balance: Balance = [];
+      providerConnection.forEach((connection) => {
+        const {
+          ProviderConnectorImpl,
+        } = require(`../impl/${connection.provider.id}/index`);
+        const service = new ProviderConnectorImpl(connection);
+      });
+      throw new Error('Method not implemented.');
+      //staff
+    },
+  };
 };
 const getDescription = (asset: string) => {
   const obj = require('../cryptocurrencies.json');
@@ -28,4 +33,8 @@ const getDescription = (asset: string) => {
   if (!foundKey) return '';
   return obj[foundKey];
 };
-export { setClient, getDescription };
+const manageBaseUrl = (connection: ProviderCredentials): string => {
+  return '';
+  //staff this function to return the base url
+};
+export { setClient, getDescription, manageBaseUrl };

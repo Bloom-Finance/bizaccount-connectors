@@ -1,13 +1,17 @@
-import { ConnectorConfig, ProviderCredentials } from '../@types';
+import { ProviderCredentials } from '../@types';
+import { manageBaseUrl } from '../utils';
+import { Chains } from '../@types/index';
 export class ProviderConnector {
   protected _credentials: any;
+  protected chain: Chains | undefined;
+  protected addresses: string[] | undefined;
   protected _baseurl = '';
-  constructor(creds: ProviderCredentials<any>, config: ConnectorConfig) {
-    this._credentials = creds;
-    if (config.useTestnet) {
-      this._baseurl = 'https://testnet.binance.vision';
-    } else {
-      this._baseurl = 'https://api1.binance.com';
+  constructor(connection: ProviderCredentials) {
+    this._credentials = connection.provider.auth;
+    if (connection.addresses && connection.addresses.length > 0) {
+      this.addresses = connection.addresses;
     }
+    this.chain = connection.chain;
+    this._baseurl = manageBaseUrl(connection);
   }
 }

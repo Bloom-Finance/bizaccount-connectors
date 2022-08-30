@@ -1,47 +1,51 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 export interface IConnector {
-  getClient<T extends Providers>(
-    credentials: ProviderCredentials<T>,
-    providerType: T,
-    config?: ConnectorConfig
-  ): Client<
-    T extends 'binance' ? 'binance' : T extends 'stripe' ? 'stripe' : 'metamask'
-  >;
+  getClient(providerConnection: ProviderCredentials[]): Client;
 }
-export interface Client<A extends Providers> {
-  provider: A;
-  credentials: ProviderCredentials<A>;
-  getBalance(): Promise<{ asset: string; balance: string }[]>;
+export interface Client {
+  getBalance(): Promise<Balance>;
+  getProvider(id: Providers);
+  providers: ProviderCredentials[];
 }
 export interface IProviderConnector {
-  // asset, description , balance
-  getBalance(): Promise<{ asset: string; balance: string }[]>;
+  getBalance(): Promise<
+    {
+      asset: string;
+      balance: string;
+      description: string;
+      detail: Array<{
+        address: string;
+        provider: string;
+        chain: string;
+        balance: string;
+      }>;
+    }[]
+  >;
 }
 
-export type ProviderCredentials<T extends Providers> = T extends 'binance'
-  ? Binance.credentials
-  : T extends 'metamask'
-  ? Metamask.credentials
-  : Stripe.credentials;
-export type Providers = 'binance' | 'metamask' | 'stripe';
-export type ConnectorConfig = {
-  useTestnet: boolean;
+export type ProviderCredentials = {
+  addresses?: string[];
+  chain: Chains;
+  provider: {
+    id: Providers;
+    useTestnet: boolean;
+    auth: {
+      apiKey?: string;
+      apiSecret?: string;
+    };
+  };
 };
-export namespace Binance {
-  export interface credentials {
-    apiKey: string;
-    apiSecret: string;
-  }
-}
+export type Providers = 'binance' | 'etherscan' | 'coinbase';
+export type Chains = 'bsc' | 'goerli' | 'rinkeby' | 'erc20';
 
-export namespace Metamask {
-  export interface credentials {
-    test: '';
-  }
-}
-
-export namespace Stripe {
-  export interface credentials {
-    test: '';
-  }
-}
+export type Balance = {
+  asset: string;
+  balance: string;
+  description: string;
+  detail: Array<{
+    address: string;
+    provider: string;
+    chain: string;
+    balance: string;
+  }>;
+}[];

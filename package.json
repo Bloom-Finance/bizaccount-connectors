@@ -1,6 +1,6 @@
 {
   "name": "@bloom-trade/bizaccount-connector",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "dist/main.js",
   "module": "dist/main.js",
   "scripts": {
