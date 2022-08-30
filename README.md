@@ -18,7 +18,7 @@ const credentials = {
 };
 const connector = new Connector();
 const client = connector.getClient(credentials, 'binance',{useTestnet:true});
-client.getBalance('99').then((invoices) => {
+client.getBalance().then((invoices) => {
   //your balance
   console.log(invoices.products);
 });

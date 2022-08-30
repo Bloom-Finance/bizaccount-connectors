@@ -1,6 +1,7 @@
 import { ProviderConnector } from '../connector';
 import { IProviderConnector } from '../../@types/index';
 import { Spot } from '@binance/connector';
+import { getDescription } from '../../utils';
 export class ProviderConnectorImpl
   extends ProviderConnector
   implements IProviderConnector
@@ -18,6 +19,7 @@ export class ProviderConnectorImpl
     indexes.forEach((i) => {
       balance.push({
         asset: myBalances[i].asset,
+        description: getDescription(myBalances[i].asset),
         balance: myBalances[i].free,
       });
     });
