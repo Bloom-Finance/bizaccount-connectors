@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx ts-node src/main.ts",
+    "start:sandbox": "npx ts-node src/sandbox/index.ts",
     "build": "npx tsc",
     "lint": "eslint . --fix"
   },
@@ -18,9 +19,13 @@
   "license": "MIT",
   "description": "",
   "devDependencies": {
+    "@types/node": "^18.7.13",
     "@typescript-eslint/eslint-plugin": "^5.35.1",
     "@typescript-eslint/parser": "^5.35.1",
     "eslint": "^8.22.0",
     "typescript": "^4.8.2"
+  },
+  "dependencies": {
+    "@binance/connector": "^1.13.0"
   }
 }

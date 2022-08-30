@@ -3,20 +3,23 @@
 ## Get Started
 
 ```javascript
-import Connector from '@bloom-trade/connector';
+import Connector from '@bloom-trade/bizaccount-connector';
 
 const credentials = {
-  credentials: {
-    client_id: '',
-    client_secret: '',
+  {
+    apiKey: 'YOUR_API_KEY',
+    apiSecret:
+      'YOUR_API_SECRET',
   },
-  realmId: '',
-  refresh_token: '',
+  'binance',
+  {
+    useTestnet: true,
+  }
 };
 const connector = new Connector();
-const client = connector.getClient(credentials, 'quickbooks');
-client?.getInvoice('99').then((invoices) => {
-  //your invoice
+const client = connector.getClient(credentials, 'binance',{useTestnet:true});
+client.getBalance('99').then((invoices) => {
+  //your balance
   console.log(invoices.products);
 });
 ```
