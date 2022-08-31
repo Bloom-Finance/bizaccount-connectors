@@ -34,6 +34,7 @@ export class ProviderConnectorImpl
         asset: myBalances[i].asset,
         description: getDescription(myBalances[i].asset),
         balance: myBalances[i].free,
+        detail: [{ balance: myBalances[i].free, provider: this._provider.id }],
       });
     });
     return balance;

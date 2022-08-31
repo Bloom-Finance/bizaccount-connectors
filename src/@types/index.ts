@@ -49,9 +49,9 @@ export type Balance = {
   balance: string;
   description: string;
   detail: Array<{
-    address: string;
+    address?: string;
     provider: string;
-    chain: string;
+    chain?: string;
     balance: string;
   }>;
 }[];

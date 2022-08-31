@@ -2,6 +2,7 @@ import { ProviderConnector } from '../connector';
 import { IProviderConnector, Balance } from '../../@types/index';
 import axios from 'axios';
 import { getDescription, getSupportedContracts } from '../../utils';
+import Web3 from 'web3';
 export class ProviderConnectorImpl
   extends ProviderConnector
   implements IProviderConnector
@@ -40,16 +41,17 @@ export class ProviderConnectorImpl
           `${this._baseurl}?module=account&action=balance&address=${address}&tag=latest&apikey=${apiKey}`
         );
         //TODO: Wei convertion
+        const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
         balance.push({
           asset: 'ETH',
           description: 'Ethereum',
-          balance: data.result,
+          balance: web3.utils.fromWei(data.result, 'ether'),
           detail: [
             {
               address,
               provider: this._provider.id,
               chain: this.chain as string,
-              balance: data.result,
+              balance: web3.utils.fromWei(data.result, 'ether'),
             },
           ],
         });
@@ -82,8 +84,7 @@ export class ProviderConnectorImpl
         continue;
       }
     }
-    console.log(balance);
-    return [{}] as any;
+    return balance as any;
     //staff
   }
 }

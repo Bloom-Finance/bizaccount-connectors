@@ -21,8 +21,19 @@ const setClient = (providerConnection: ProviderCredentials[]): Client => {
           ProviderConnectorImpl,
         } = require(`../impl/${connection.provider.id}/index`);
         const service = new ProviderConnectorImpl(connection);
-        const balances = await service.getBalance();
-        balance.push(...balances);
+        const res = (await service.getBalance()) as Balance;
+        res.forEach((e, i) => {
+          const foundElement = balance.find(
+            (element) => element.asset === e.asset
+          );
+          if (!foundElement) {
+            balance.push(e);
+          } else {
+            const index = balance.indexOf(foundElement);
+            balance[index].balance += e.balance;
+            balance[index].detail.push(...e.detail);
+          }
+        });
       }
       return balance;
     },
