@@ -13,16 +13,17 @@ const setClient = (providerConnection: ProviderCredentials[]): Client => {
     getProvider(id) {
       //staff this function to return the provider object
     },
-    getBalance() {
+    async getBalance() {
       const balance: Balance = [];
-      providerConnection.forEach((connection) => {
+      for (const connection of providerConnection) {
         const {
           ProviderConnectorImpl,
         } = require(`../impl/${connection.provider.id}/index`);
         const service = new ProviderConnectorImpl(connection);
-      });
-      throw new Error('Method not implemented.');
-      //staff
+        const balances = await service.getBalance();
+        balance.push(...balances);
+      }
+      return balance;
     },
   };
 };
@@ -34,7 +35,26 @@ const getDescription = (asset: string) => {
   return obj[foundKey];
 };
 const manageBaseUrl = (connection: ProviderCredentials): string => {
-  return '';
+  if (!connection.provider.useTestnet) {
+    return setProdUrl(connection.provider.id);
+  }
+  return setTestUrl(connection.provider.id);
   //staff this function to return the base url
+};
+const setProdUrl = (provider: Providers) => {
+  switch (provider) {
+    case 'binance':
+      return 'https://api.binance.com';
+    default:
+      return 'https://api.binance.com';
+  }
+};
+const setTestUrl = (provider: Providers) => {
+  switch (provider) {
+    case 'binance':
+      return 'https://testnet.binance.vision';
+    default:
+      return 'https://api.binance.com';
+  }
 };
 export { setClient, getDescription, manageBaseUrl };
