@@ -4,6 +4,7 @@ import {
   Providers,
   Client,
   Balance,
+  Contracts,
 } from '../@types/index';
 
 const setClient = (providerConnection: ProviderCredentials[]): Client => {
@@ -34,27 +35,44 @@ const getDescription = (asset: string) => {
   if (!foundKey) return '';
   return obj[foundKey];
 };
+const getSupportedContracts = () => {
+  const obj = require('../contracts.json');
+  return obj.tokens as Contracts;
+};
+const getContractsBalance = async (contracts: Contracts) => {
+  //staff
+};
 const manageBaseUrl = (connection: ProviderCredentials): string => {
+  let url = '';
   if (!connection.provider.useTestnet) {
-    return setProdUrl(connection.provider.id);
+    url = setProdUrl(connection.provider.id);
+  } else {
+    url = setTestUrl(connection.provider.id);
   }
-  return setTestUrl(connection.provider.id);
+  if (connection.chain === 'goerli' || connection.chain === 'rinkeby') {
+    url = url.replace('api', `api-${connection.chain}`);
+  }
+  return url;
   //staff this function to return the base url
 };
 const setProdUrl = (provider: Providers) => {
   switch (provider) {
     case 'binance':
       return 'https://api.binance.com';
+    case 'etherscan':
+      return 'https://api.etherscan.io/api';
     default:
-      return 'https://api.binance.com';
+      return 'https://api.etherscan.io/api';
   }
 };
 const setTestUrl = (provider: Providers) => {
   switch (provider) {
     case 'binance':
       return 'https://testnet.binance.vision';
+    case 'etherscan':
+      return 'https://api.etherscan.io/api';
     default:
-      return 'https://api.binance.com';
+      return 'https://api.etherscan.io/api';
   }
 };
-export { setClient, getDescription, manageBaseUrl };
+export { setClient, getDescription, manageBaseUrl, getSupportedContracts };

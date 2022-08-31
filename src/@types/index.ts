@@ -22,7 +22,13 @@ export interface IProviderConnector {
     }[]
   >;
 }
-
+export type Contracts = {
+  token: 'USDT' | 'DAI';
+  networks: {
+    chain: Chains;
+    address: string;
+  }[];
+}[];
 export type ProviderCredentials = {
   addresses?: string[];
   chain: Chains;
