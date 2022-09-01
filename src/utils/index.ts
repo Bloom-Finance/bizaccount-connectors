@@ -7,7 +7,9 @@ import {
   Contracts,
 } from '../@types/index';
 import Web3 from 'web3';
-
+import { cryptocurrencies } from '../data/cryptocurrencies';
+import { contracts } from '../data/contracts';
+import { Transaction } from '../@types/index';
 const setClient = (providerConnection: ProviderCredentials[]): Client => {
   const providers = providerConnection;
   return {
@@ -23,7 +25,6 @@ const setClient = (providerConnection: ProviderCredentials[]): Client => {
         } = require(`../impl/${connection.provider.id}/index`);
         const service = new ProviderConnectorImpl(connection);
         const res = (await service.getBalance()) as Balance;
-        const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
         res.forEach((e, i) => {
           const foundElement = balance.find(
             (element) => element.asset === e.asset
@@ -31,38 +32,47 @@ const setClient = (providerConnection: ProviderCredentials[]): Client => {
           if (!foundElement) {
             balance.push(e);
           } else {
-            const index = balance.indexOf(foundElement);
-            const totalBalanceInWei = web3.utils.toWei(e.balance, 'ether');
-            const foundElementInWei = web3.utils.toWei(
-              foundElement.balance,
-              'ether'
-            );
-            const newBalance = web3.utils
-              .toBN(totalBalanceInWei)
-              .add(web3.utils.toBN(foundElementInWei))
-              .toString();
-            balance[index].balance = web3.utils.fromWei(newBalance, 'ether');
-            balance[index].detail.push(...e.detail);
+            if (foundElement.asset === 'ETH') {
+              const index = balance.indexOf(foundElement);
+              balance[index].balance = sumEthsBalances(
+                foundElement.balance,
+                e.balance
+              );
+              balance[index].detail.push(...e.detail);
+            } else {
+              const index = balance.indexOf(foundElement);
+              balance[index].balance += e.balance;
+              balance[index].detail.push(...e.detail);
+            }
           }
         });
       }
       return balance;
     },
+    async getTransactionHistory() {
+      const transactions: Transaction[] = [];
+      for (const connection of providerConnection) {
+        const {
+          ProviderConnectorImpl,
+        } = require(`../impl/${connection.provider.id}/index`);
+        const service = new ProviderConnectorImpl(connection);
+        const res = (await service.getTransactionHistory()) as Transaction[];
+        res.forEach((e) => {
+          transactions.push(e);
+        });
+      }
+      return transactions;
+    },
   };
 };
 const getDescription = (asset: string) => {
-  const obj = require('../cryptocurrencies.json');
-  const myKeys = Object.keys(obj);
+  const myKeys = Object.keys(cryptocurrencies);
   const foundKey = myKeys.find((e) => e === asset);
   if (!foundKey) return '';
-  return obj[foundKey];
+  return cryptocurrencies[foundKey];
 };
 const getSupportedContracts = () => {
-  const obj = require('../contracts.json');
-  return obj.tokens as Contracts;
-};
-const getContractsBalance = async (contracts: Contracts) => {
-  //staff
+  return contracts.tokens as Contracts;
 };
 const manageBaseUrl = (connection: ProviderCredentials): string => {
   let url = '';
@@ -97,4 +107,33 @@ const setTestUrl = (provider: Providers) => {
       return 'https://api.etherscan.io/api';
   }
 };
-export { setClient, getDescription, manageBaseUrl, getSupportedContracts };
+const sumEthsBalances = (referenceBalance: string, balanceToAdd: string) => {
+  const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
+  const totalBalanceInWei = web3.utils.toWei(referenceBalance, 'ether');
+  const foundElementInWei = web3.utils.toWei(balanceToAdd, 'ether');
+  const newBalance = web3.utils
+    .toBN(totalBalanceInWei)
+    .add(web3.utils.toBN(foundElementInWei))
+    .toString();
+  const formattedBalance = web3.utils.fromWei(newBalance, 'ether');
+  return formattedBalance;
+};
+const weiToEth = (value: string) => {
+  const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
+  return web3.utils.fromWei(value, 'ether');
+};
+const convertERC20Token = (value: string, decimals: number) => {
+  const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
+  return web3.utils
+    .toBN(value)
+    .div(web3.utils.toBN(10 ** decimals))
+    .toString();
+};
+export {
+  setClient,
+  getDescription,
+  manageBaseUrl,
+  getSupportedContracts,
+  weiToEth,
+  convertERC20Token,
+};

@@ -5,6 +5,7 @@ export interface IConnector {
 export interface Client {
   getBalance(): Promise<Balance>;
   getProvider(id: Providers);
+  getTransactionHistory(): Promise<Transaction[]>;
   providers: ProviderCredentials[];
 }
 export interface IProviderConnector {
@@ -55,3 +56,13 @@ export type Balance = {
     balance: string;
   }>;
 }[];
+export type Transaction = {
+  asset: string;
+  from: string;
+  to: string;
+  amount: string;
+  status: 'in' | 'out';
+  timestamp: number;
+  chain?: Chains;
+  provider: Providers;
+};

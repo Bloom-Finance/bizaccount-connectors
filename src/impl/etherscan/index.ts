@@ -1,7 +1,12 @@
 import { ProviderConnector } from '../connector';
-import { IProviderConnector, Balance } from '../../@types/index';
+import { IProviderConnector, Balance, Transaction } from '../../@types/index';
 import axios from 'axios';
-import { getDescription, getSupportedContracts } from '../../utils';
+import {
+  convertERC20Token,
+  getDescription,
+  getSupportedContracts,
+  weiToEth,
+} from '../../utils';
 import Web3 from 'web3';
 export class ProviderConnectorImpl
   extends ProviderConnector
@@ -91,5 +96,60 @@ export class ProviderConnectorImpl
     }
     return balance as any;
     //staff
+  }
+  async getTransactionHistory() {
+    const apiKey = this._credentials.apiKey;
+    const contracts = getSupportedContracts();
+    if (!this.addresses) {
+      return [] as any;
+    }
+    const transactions: Transaction[] = [];
+    for (const address of this.addresses) {
+      const {
+        data: { result: ethTransactions },
+      } = await axios.get(
+        `${this._baseurl}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=10
+        &tag=latest&apikey=${apiKey}`
+      );
+      ethTransactions.forEach((e) => {
+        if (e.value !== '0') {
+          transactions.push({
+            asset: 'ETH',
+            from: e.from,
+            to: e.to,
+            amount: weiToEth(e.value),
+            status: address === e.from ? 'out' : 'in',
+            timestamp: e.timeStamp,
+            provider: this._provider.id,
+            chain: this.chain as any,
+          });
+        }
+      });
+      for (const contract of contracts) {
+        const {
+          data: { result: ERC20Transactions },
+        } = await axios.get(
+          `${this._baseurl}?module=account&action=tokentx&contractaddress=${
+            contract.networks.find((e) => e.chain === this.chain)?.address
+          }&address=${address}&startblock=0&endblock=99999999&page=1&offset=10
+          &tag=latest&apikey=${apiKey}`
+        );
+        ERC20Transactions.forEach((e) => {
+          if (e.value !== '0') {
+            transactions.push({
+              asset: contract.token,
+              from: e.from,
+              to: e.to,
+              amount: convertERC20Token(e.value, 18),
+              status: address === e.from ? 'out' : 'in',
+              timestamp: e.timeStamp,
+              provider: this._provider.id,
+              chain: this.chain as any,
+            });
+          }
+        });
+      }
+    }
+    return transactions;
   }
 }
