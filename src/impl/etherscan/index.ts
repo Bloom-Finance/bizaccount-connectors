@@ -30,7 +30,7 @@ export class ProviderConnectorImpl
       if (
         !balance.find((e) => {
           if (
-            !e.detail.find((e) => e.address === address) &&
+            e.detail.find((e) => e.address === address) &&
             e.asset === 'ETH'
           ) {
             return e;
@@ -65,17 +65,22 @@ export class ProviderConnectorImpl
               contract.networks.find((e) => e.chain === this.chain)?.address
             }&address=${address}&tag=latest&apikey=${apiKey}`
           );
+          const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
           if (data.result !== '0') {
+            const retrievedBalance = web3.utils
+              .toBN(data.result)
+              .div(web3.utils.toBN(10 ** 18))
+              .toString();
             balance.push({
               asset: contract.token,
               description: getDescription(contract.token),
-              balance: data.result,
+              balance: retrievedBalance,
               detail: [
                 {
                   address,
                   provider: this._provider.id,
                   chain: this.chain as string,
-                  balance: data.result,
+                  balance: retrievedBalance,
                 },
               ],
             });

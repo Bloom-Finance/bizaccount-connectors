@@ -6,6 +6,7 @@ import {
   Balance,
   Contracts,
 } from '../@types/index';
+import Web3 from 'web3';
 
 const setClient = (providerConnection: ProviderCredentials[]): Client => {
   const providers = providerConnection;
@@ -22,6 +23,7 @@ const setClient = (providerConnection: ProviderCredentials[]): Client => {
         } = require(`../impl/${connection.provider.id}/index`);
         const service = new ProviderConnectorImpl(connection);
         const res = (await service.getBalance()) as Balance;
+        const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
         res.forEach((e, i) => {
           const foundElement = balance.find(
             (element) => element.asset === e.asset
@@ -30,7 +32,16 @@ const setClient = (providerConnection: ProviderCredentials[]): Client => {
             balance.push(e);
           } else {
             const index = balance.indexOf(foundElement);
-            balance[index].balance += e.balance;
+            const totalBalanceInWei = web3.utils.toWei(e.balance, 'ether');
+            const foundElementInWei = web3.utils.toWei(
+              foundElement.balance,
+              'ether'
+            );
+            const newBalance = web3.utils
+              .toBN(totalBalanceInWei)
+              .add(web3.utils.toBN(foundElementInWei))
+              .toString();
+            balance[index].balance = web3.utils.fromWei(newBalance, 'ether');
             balance[index].detail.push(...e.detail);
           }
         });
