@@ -11,6 +11,10 @@ export const contracts = {
           chain: 'rinkeby',
           address: '0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa',
         },
+        {
+          chain: 'erc20',
+          address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+        },
       ],
     },
     {
@@ -23,6 +27,10 @@ export const contracts = {
         {
           chain: 'rinkeby',
           address: '0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735',
+        },
+        {
+          chain: 'erc20',
+          address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
         },
       ],
     },

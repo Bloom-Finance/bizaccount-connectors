@@ -49,17 +49,31 @@ const setClient = (providerConnection: ProviderCredentials[]): Client => {
       }
       return balance;
     },
-    async getTransactionHistory() {
+    async getTransactionHistory(filters: {
+      startingBlock: number;
+      order?: 'asc' | 'desc';
+    }) {
       const transactions: Transaction[] = [];
       for (const connection of providerConnection) {
         const {
           ProviderConnectorImpl,
         } = require(`../impl/${connection.provider.id}/index`);
         const service = new ProviderConnectorImpl(connection);
-        const res = (await service.getTransactionHistory()) as Transaction[];
+        const res = (await service.getTransactionHistory(
+          filters
+        )) as Transaction[];
         res.forEach((e) => {
           transactions.push(e);
         });
+      }
+      switch (filters.order) {
+        case 'asc':
+          transactions.sort((a, b) => a.timestamp - b.timestamp);
+          break;
+        case 'desc':
+          transactions.sort((a, b) => b.timestamp - a.timestamp);
+        default:
+          break;
       }
       return transactions;
     },

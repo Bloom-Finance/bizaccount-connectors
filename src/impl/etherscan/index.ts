@@ -97,7 +97,7 @@ export class ProviderConnectorImpl
     return balance as any;
     //staff
   }
-  async getTransactionHistory() {
+  async getTransactionHistory(filters: { startingBlock: number }) {
     const apiKey = this._credentials.apiKey;
     const contracts = getSupportedContracts();
     if (!this.addresses) {
@@ -108,7 +108,7 @@ export class ProviderConnectorImpl
       const {
         data: { result: ethTransactions },
       } = await axios.get(
-        `${this._baseurl}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=10
+        `${this._baseurl}?module=account&action=txlist&address=${address}&startblock=${filters.startingBlock}&endblock=99999999&page=1&offset=10
         &tag=latest&apikey=${apiKey}`
       );
       ethTransactions.forEach((e) => {
@@ -119,9 +119,10 @@ export class ProviderConnectorImpl
             to: e.to,
             amount: weiToEth(e.value),
             status: address === e.from ? 'out' : 'in',
-            timestamp: e.timeStamp,
+            timestamp: parseInt(e.timeStamp),
             provider: this._provider.id,
             chain: this.chain as any,
+            block: e.blockNumber,
           });
         }
       });
@@ -142,9 +143,10 @@ export class ProviderConnectorImpl
               to: e.to,
               amount: convertERC20Token(e.value, 18),
               status: address === e.from ? 'out' : 'in',
-              timestamp: e.timeStamp,
+              timestamp: parseInt(e.timeStamp),
               provider: this._provider.id,
               chain: this.chain as any,
+              block: e.blockNumber,
             });
           }
         });

@@ -5,7 +5,10 @@ export interface IConnector {
 export interface Client {
   getBalance(): Promise<Balance>;
   getProvider(id: Providers);
-  getTransactionHistory(): Promise<Transaction[]>;
+  getTransactionHistory(config: {
+    startingBlock: number;
+    order?: 'asc' | 'desc';
+  }): Promise<Transaction[]>;
   providers: ProviderCredentials[];
 }
 export interface IProviderConnector {
@@ -65,4 +68,5 @@ export type Transaction = {
   timestamp: number;
   chain?: Chains;
   provider: Providers;
+  block: string;
 };
