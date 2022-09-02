@@ -69,4 +69,7 @@ export type Transaction = {
   chain?: Chains;
   provider: Providers;
   block: string;
+  gas?: string;
+  gasPrice?: string;
+  gasUsed?: string;
 };

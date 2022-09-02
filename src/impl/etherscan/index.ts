@@ -113,17 +113,27 @@ export class ProviderConnectorImpl
       );
       ethTransactions.forEach((e) => {
         if (e.value !== '0') {
-          transactions.push({
+          const lowerCaseAddress=address.toLowerCase();
+          const lowerCaseFrom=e.from.toLowerCase();
+          const obj = {
             asset: 'ETH',
             from: e.from,
             to: e.to,
             amount: weiToEth(e.value),
-            status: address === e.from ? 'out' : 'in',
+            status: (lowerCaseAddress != lowerCaseFrom ? 'in' : 'out') as any,
             timestamp: parseInt(e.timeStamp),
             provider: this._provider.id,
             chain: this.chain as any,
             block: e.blockNumber,
-          });
+          };
+          if (lowerCaseAddress == lowerCaseFrom) {
+            Object.assign(obj, {
+              gas: e.gas,
+              gasPrice: e.gasPrice,
+              gasUsed: e.gasUsed,
+            });
+          }
+          transactions.push(obj);
         }
       });
       for (const contract of contracts) {
@@ -137,17 +147,27 @@ export class ProviderConnectorImpl
         );
         ERC20Transactions.forEach((e) => {
           if (e.value !== '0') {
-            transactions.push({
+          const lowerCaseAddress=address.toLowerCase();
+          const lowerCaseFrom=e.from.toLowerCase();
+            const obj = {
               asset: contract.token,
               from: e.from,
               to: e.to,
               amount: convertERC20Token(e.value, 18),
-              status: address === e.from ? 'out' : 'in',
+              status: lowerCaseAddress !== lowerCaseFrom ? 'in' : ('out' as any),
               timestamp: parseInt(e.timeStamp),
               provider: this._provider.id,
               chain: this.chain as any,
               block: e.blockNumber,
-            });
+            };
+            if (lowerCaseAddress === lowerCaseFrom) {
+              Object.assign(obj, {
+                gas: e.gas,
+                gasPrice: e.gasPrice,
+                gasUsed: e.gasUsed,
+              });
+            }
+            transactions.push(obj);
           }
         });
       }
