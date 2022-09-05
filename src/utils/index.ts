@@ -9,7 +9,8 @@ import {
 import Web3 from 'web3';
 import { cryptocurrencies } from '../data/cryptocurrencies';
 import { contracts } from '../data/contracts';
-import { Transaction } from '../@types/index';
+import { Transaction, Assets, PoloniexPrice, Prices } from '../@types/index';
+import axios from 'axios';
 const setClient = (providerConnection: ProviderCredentials[]): Client => {
   const providers = providerConnection;
   return {
@@ -77,6 +78,29 @@ const setClient = (providerConnection: ProviderCredentials[]): Client => {
       }
       return transactions;
     },
+    async getCurrenciesPricesInUSDC(
+      assets: Assets[],
+      startDate: number,
+      endDate: number
+    ) {
+      const prices: Prices = [];
+      //staff this function to return the prices of the currencies in USDC
+      for (const asset of assets) {
+        if (asset === 'usdt' || asset === 'dai') {
+          continue;
+        }
+        const price = await getAssetPriceInUSDC(asset, startDate, endDate);
+        prices.push({
+          asset,
+          close: price.close,
+          volume: price.volume,
+          high: price.high,
+          date: parseInt(price.date),
+          low: price.low,
+        });
+      }
+      return prices;
+    },
   };
 };
 const getDescription = (asset: string) => {
@@ -143,6 +167,22 @@ const convertERC20Token = (value: string, decimals: number) => {
     .div(web3.utils.toBN(10 ** decimals))
     .toString();
 };
+const getAssetPriceInUSDC = async (
+  asset: Assets,
+  startDate: number,
+  endDate: number
+) => {
+  //staff this function to return the price of the asset in USDC
+  try {
+    const { data } = await axios.get(
+      `https://poloniex.com/public?command=returnChartData&currencyPair=USDC_${asset.toUpperCase()}&start=${startDate}&end=${endDate}&period=14400`
+    );
+    return data[0] as PoloniexPrice;
+  } catch (error) {
+    console.log(error);
+    throw new Error();
+  }
+};
 export {
   setClient,
   getDescription,
@@ -150,4 +190,5 @@ export {
   getSupportedContracts,
   weiToEth,
   convertERC20Token,
+  getAssetPriceInUSDC,
 };

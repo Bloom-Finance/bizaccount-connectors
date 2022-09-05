@@ -3,6 +3,7 @@ import { IProviderConnector, Balance, Transaction } from '../../@types/index';
 import axios from 'axios';
 import {
   convertERC20Token,
+  getAssetPriceInUSDC,
   getDescription,
   getSupportedContracts,
   weiToEth,
@@ -111,10 +112,15 @@ export class ProviderConnectorImpl
         `${this._baseurl}?module=account&action=txlist&address=${address}&startblock=${filters.startingBlock}&endblock=99999999&page=1&offset=10
         &tag=latest&apikey=${apiKey}`
       );
-      ethTransactions.forEach((e) => {
+      for (const e of ethTransactions) {
         if (e.value !== '0') {
-          const lowerCaseAddress=address.toLowerCase();
-          const lowerCaseFrom=e.from.toLowerCase();
+          const lowerCaseAddress = address.toLowerCase();
+          const lowerCaseFrom = e.from.toLowerCase();
+          const { close } = await getAssetPriceInUSDC(
+            'eth',
+            e.timeStamp,
+            e.timeStamp
+          );
           const obj = {
             asset: 'ETH',
             from: e.from,
@@ -125,6 +131,9 @@ export class ProviderConnectorImpl
             provider: this._provider.id,
             chain: this.chain as any,
             block: e.blockNumber,
+            amountInUSDC: (
+              parseFloat(close) * parseFloat(weiToEth(e.value))
+            ).toString(),
           };
           if (lowerCaseAddress == lowerCaseFrom) {
             Object.assign(obj, {
@@ -135,7 +144,7 @@ export class ProviderConnectorImpl
           }
           transactions.push(obj);
         }
-      });
+      }
       for (const contract of contracts) {
         const {
           data: { result: ERC20Transactions },
@@ -145,16 +154,17 @@ export class ProviderConnectorImpl
           }&address=${address}&startblock=0&endblock=99999999&page=1&offset=10
           &tag=latest&apikey=${apiKey}`
         );
-        ERC20Transactions.forEach((e) => {
+        for (const e of ERC20Transactions) {
           if (e.value !== '0') {
-          const lowerCaseAddress=address.toLowerCase();
-          const lowerCaseFrom=e.from.toLowerCase();
+            const lowerCaseAddress = address.toLowerCase();
+            const lowerCaseFrom = e.from.toLowerCase();
             const obj = {
               asset: contract.token,
               from: e.from,
               to: e.to,
               amount: convertERC20Token(e.value, 18),
-              status: lowerCaseAddress !== lowerCaseFrom ? 'in' : ('out' as any),
+              status:
+                lowerCaseAddress !== lowerCaseFrom ? 'in' : ('out' as any),
               timestamp: parseInt(e.timeStamp),
               provider: this._provider.id,
               chain: this.chain as any,
@@ -169,7 +179,7 @@ export class ProviderConnectorImpl
             }
             transactions.push(obj);
           }
-        });
+        }
       }
     }
     return transactions;

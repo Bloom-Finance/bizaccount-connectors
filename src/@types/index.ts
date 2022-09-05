@@ -9,6 +9,11 @@ export interface Client {
     startingBlock: number;
     order?: 'asc' | 'desc';
   }): Promise<Transaction[]>;
+  getCurrenciesPricesInUSDC(
+    assets: Assets[],
+    startDate: number,
+    endDate: number
+  ): Promise<Prices>;
   providers: ProviderCredentials[];
 }
 export interface IProviderConnector {
@@ -47,6 +52,7 @@ export type ProviderCredentials = {
 };
 export type Providers = 'binance' | 'etherscan' | 'coinbase';
 export type Chains = 'bsc' | 'goerli' | 'rinkeby' | 'erc20';
+export type Assets = 'eth' | 'usdt' | 'dai' | 'btc';
 
 export type Balance = {
   asset: string;
@@ -72,4 +78,24 @@ export type Transaction = {
   gas?: string;
   gasPrice?: string;
   gasUsed?: string;
+  amountInUSDC?: string;
+};
+
+export type Prices = {
+  date: number;
+  high: string;
+  low: string;
+  close: string;
+  volume: string;
+  asset: Assets;
+}[];
+export type PoloniexPrice = {
+  date: string;
+  high: string;
+  low: string;
+  open: string;
+  close: string;
+  volume: string;
+  quoteVolume: string;
+  weightedAverage: string;
 };
