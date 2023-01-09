@@ -32,10 +32,11 @@ export interface IProviderConnector {
   >;
 }
 export type Contracts = {
-  token: 'USDT' | 'DAI';
+  token: 'USDT' | 'DAI' | 'USDC';
   networks: {
     chain: Chains;
     address: string;
+    decimalPosition: number;
   }[];
 }[];
 export type ProviderCredentials = {
@@ -50,8 +51,14 @@ export type ProviderCredentials = {
     };
   };
 };
-export type Providers = 'binance' | 'etherscan' | 'coinbase';
-export type Chains = 'bsc' | 'goerli' | 'rinkeby' | 'erc20';
+export type Providers =
+  | 'binance'
+  | 'etherscan'
+  | 'coinbase'
+  | 'bscscan'
+  | 'snowtrace'
+  | 'polygonscan';
+export type Chains = 'bsc' | 'eth' | 'polygon' | 'avax';
 export type Assets = 'eth' | 'usdt' | 'dai' | 'btc';
 
 export type Balance = {

@@ -1,11 +1,18 @@
 import { ProviderConnector } from '../connector';
-import { IProviderConnector, Balance, Transaction } from '../../@types/index';
+import {
+  IProviderConnector,
+  Balance,
+  Transaction,
+  Chains,
+} from '../../@types/index';
 import axios from 'axios';
 import {
-  convertERC20Token,
+  convertToken,
+  getAssetDataByChain,
   getAssetPriceInUSDC,
   getDescription,
   getSupportedContracts,
+  getTestnetByMainnet,
   weiToEth,
 } from '../../utils';
 import Web3 from 'web3';
@@ -68,15 +75,23 @@ export class ProviderConnectorImpl
             `${
               this._baseurl
             }?module=account&action=tokenbalance&contractaddress=${
-              contract.networks.find((e) => e.chain === this.chain)?.address
+              getAssetDataByChain(
+                contract,
+                this.chain as Chains,
+                this._provider
+              ).address
             }&address=${address}&tag=latest&apikey=${apiKey}`
           );
           const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
           if (data.result !== '0') {
-            const retrievedBalance = web3.utils
-              .toBN(data.result)
-              .div(web3.utils.toBN(10 ** 18))
-              .toString();
+            const retrievedBalance = convertToken(
+              data.result,
+              getAssetDataByChain(
+                contract,
+                this.chain as Chains,
+                this._provider
+              ).decimalPosition
+            );
             balance.push({
               asset: contract.token,
               description: getDescription(contract.token),
@@ -162,7 +177,7 @@ export class ProviderConnectorImpl
               asset: contract.token,
               from: e.from,
               to: e.to,
-              amount: convertERC20Token(e.value, 18),
+              amount: convertToken(e.value, 18),
               status:
                 lowerCaseAddress !== lowerCaseFrom ? 'in' : ('out' as any),
               timestamp: parseInt(e.timeStamp),

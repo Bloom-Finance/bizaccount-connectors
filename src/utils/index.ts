@@ -5,11 +5,12 @@ import {
   Client,
   Balance,
   Contracts,
+  PoloniexPrice,
 } from '../@types/index';
 import Web3 from 'web3';
 import { cryptocurrencies } from '../data/cryptocurrencies';
 import { contracts } from '../data/contracts';
-import { Transaction, Assets, PoloniexPrice, Prices } from '../@types/index';
+import { Transaction, Assets, Prices, Chains } from '../@types/index';
 import axios from 'axios';
 const setClient = (providerConnection: ProviderCredentials[]): Client => {
   const providers = providerConnection;
@@ -26,7 +27,7 @@ const setClient = (providerConnection: ProviderCredentials[]): Client => {
         } = require(`../impl/${connection.provider.id}/index`);
         const service = new ProviderConnectorImpl(connection);
         const res = (await service.getBalance()) as Balance;
-        res.forEach((e, i) => {
+        res.forEach((e) => {
           const foundElement = balance.find(
             (element) => element.asset === e.asset
           );
@@ -119,9 +120,6 @@ const manageBaseUrl = (connection: ProviderCredentials): string => {
   } else {
     url = setTestUrl(connection.provider.id);
   }
-  if (connection.chain === 'goerli' || connection.chain === 'rinkeby') {
-    url = url.replace('api', `api-${connection.chain}`);
-  }
   return url;
   //staff this function to return the base url
 };
@@ -131,6 +129,12 @@ const setProdUrl = (provider: Providers) => {
       return 'https://api.binance.com';
     case 'etherscan':
       return 'https://api.etherscan.io/api';
+    case 'bscscan':
+      return 'https://api.bscscan.com/api';
+    case 'polygonscan':
+      return 'https://api.polygonscan.com/api';
+    case 'snowtrace':
+      return 'https://snowtrace.io/api';
     default:
       return 'https://api.etherscan.io/api';
   }
@@ -140,9 +144,23 @@ const setTestUrl = (provider: Providers) => {
     case 'binance':
       return 'https://testnet.binance.vision';
     case 'etherscan':
-      return 'https://api.etherscan.io/api';
+      return 'https://api-goerli.etherscan.io/api';
     default:
-      return 'https://api.etherscan.io/api';
+      return 'https://api-goerli.etherscan.io/api';
+  }
+};
+const getTestnetByMainnet = (chain: Chains) => {
+  switch (chain) {
+    case 'eth':
+      return 'goerli';
+    case 'avax':
+      return 'fuji';
+    case 'polygon':
+      return 'mumbai';
+    case 'bsc':
+      return 'testnet';
+    default:
+      return 'goerli';
   }
 };
 const sumEthsBalances = (referenceBalance: string, balanceToAdd: string) => {
@@ -160,7 +178,7 @@ const weiToEth = (value: string) => {
   const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
   return web3.utils.fromWei(value, 'ether');
 };
-const convertERC20Token = (value: string, decimals: number) => {
+const convertToken = (value: string, decimals: number) => {
   const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
   return web3.utils
     .toBN(value)
@@ -179,16 +197,48 @@ const getAssetPriceInUSDC = async (
     );
     return data[0] as PoloniexPrice;
   } catch (error) {
-    console.log(error);
     throw new Error();
   }
 };
+const getAssetDataByChain = (
+  contract: {
+    token: 'USDT' | 'DAI' | 'USDC';
+    networks: {
+      chain: Chains;
+      address: string;
+      decimalPosition: number;
+    }[];
+  },
+  chain: Chains,
+  provider: {
+    id: Providers;
+    useTestnet: boolean;
+    auth: {
+      apiKey?: string;
+      apiSecret?: string;
+    };
+  }
+) => {
+  const filteredContract = contract.networks.find(
+    (e) =>
+      e.chain ===
+      (provider.useTestnet ? getTestnetByMainnet(chain as Chains) : chain)
+  );
+  return filteredContract as {
+    chain: Chains;
+    address: string;
+    decimalPosition: number;
+  };
+};
+
 export {
   setClient,
   getDescription,
   manageBaseUrl,
   getSupportedContracts,
   weiToEth,
-  convertERC20Token,
+  convertToken,
   getAssetPriceInUSDC,
+  getTestnetByMainnet,
+  getAssetDataByChain,
 };

@@ -5,15 +5,13 @@ export const contracts = {
       networks: [
         {
           chain: 'goerli',
-          address: '0x3B00Ef435fA4FcFF5C209a37d1f3dcff37c705aD',
-        },
-        {
-          chain: 'rinkeby',
-          address: '0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa',
+          address: '0x509Ee0d083DdF8AC028f2a56731412edD63223B9',
+          decimalPosition: 18,
         },
         {
           chain: 'erc20',
           address: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+          decimalPosition: 18,
         },
       ],
     },
@@ -23,14 +21,27 @@ export const contracts = {
         {
           chain: 'goerli',
           address: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',
-        },
-        {
-          chain: 'rinkeby',
-          address: '0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735',
+          decimalPosition: 18,
         },
         {
           chain: 'erc20',
           address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+          decimalPosition: 18,
+        },
+      ],
+    },
+    {
+      token: 'USDC',
+      networks: [
+        {
+          chain: 'goerli',
+          address: '0x07865c6E87B9F70255377e024ace6630C1Eaa37F',
+          decimalPosition: 6,
+        },
+        {
+          chain: 'erc20',
+          address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+          decimalPosition: 6,
         },
       ],
     },

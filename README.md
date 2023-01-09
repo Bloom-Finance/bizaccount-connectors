@@ -5,21 +5,23 @@
 ```javascript
 import Connector from '@bloom-trade/bizaccount-connector';
 
-const credentials = {
+const credentials = [
   {
-    apiKey: 'YOUR_API_KEY',
-    apiSecret:
-      'YOUR_API_SECRET',
+    addresses: ['0xF274800E82717D38d2e2ffe18A4C6489a50C5Add'],
+    chain: 'eth',
+    provider: {
+      id: 'etherscan',
+      useTestnet: true,
+      auth: {
+        apiKey: 'YOUR API KEY',
+      },
+    },
   },
-  'binance',
-  {
-    useTestnet: true,
-  }
-};
+];
 const connector = new Connector();
-const client = connector.getClient(credentials, 'binance',{useTestnet:true});
-client.getBalance().then((invoices) => {
+const client = connector.getClient(credentials);
+client.getBalance().then((balance) => {
   //your balance
-  console.log(invoices.products);
+  console.log(balance);
 });
 ```
