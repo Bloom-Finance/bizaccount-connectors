@@ -129,8 +129,6 @@ const setProdUrl = (provider: Providers) => {
       return 'https://api.binance.com';
     case 'etherscan':
       return 'https://api.etherscan.io/api';
-    case 'bscscan':
-      return 'https://api.bscscan.com/api';
     case 'polygonscan':
       return 'https://api.polygonscan.com/api';
     case 'snowtrace':
@@ -145,6 +143,10 @@ const setTestUrl = (provider: Providers) => {
       return 'https://testnet.binance.vision';
     case 'etherscan':
       return 'https://api-goerli.etherscan.io/api';
+    case 'polygonscan':
+      return 'https://api-testnet.polygonscan.com/api';
+    case 'snowtrace':
+      return 'https://api-testnet.snowtrace.io/api';
     default:
       return 'https://api-goerli.etherscan.io/api';
   }
@@ -157,8 +159,6 @@ const getTestnetByMainnet = (chain: Chains) => {
       return 'fuji';
     case 'polygon':
       return 'mumbai';
-    case 'bsc':
-      return 'testnet';
     default:
       return 'goerli';
   }
@@ -222,7 +222,11 @@ const getAssetDataByChain = (
   const filteredContract = contract.networks.find(
     (e) =>
       e.chain ===
-      (provider.useTestnet ? getTestnetByMainnet(chain as Chains) : chain)
+      (provider.useTestnet
+        ? getTestnetByMainnet(chain as Chains)
+        : chain === 'eth'
+        ? 'erc20'
+        : chain)
   );
   return filteredContract as {
     chain: Chains;

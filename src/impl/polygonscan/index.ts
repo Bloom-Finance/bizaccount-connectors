@@ -43,7 +43,7 @@ export class ProviderConnectorImpl
         !balance.find((e) => {
           if (
             e.detail.find((e) => e.address === address) &&
-            e.asset === 'ETH'
+            e.asset === 'MATIC'
           ) {
             return e;
           }
@@ -55,8 +55,8 @@ export class ProviderConnectorImpl
         //TODO: Wei convertion
         const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
         balance.push({
-          asset: 'ETH',
-          description: 'Ethereum',
+          asset: 'MATIC',
+          description: 'Matic polygon asset',
           balance: web3.utils.fromWei(data.result, 'ether'),
           detail: [
             {
@@ -131,12 +131,12 @@ export class ProviderConnectorImpl
           const lowerCaseAddress = address.toLowerCase();
           const lowerCaseFrom = e.from.toLowerCase();
           const { close } = await getAssetPriceInUSDC(
-            'eth',
+            'matic',
             e.timeStamp,
             e.timeStamp
           );
           const obj = {
-            asset: 'ETH',
+            asset: 'MATIC',
             from: e.from,
             to: e.to,
             amount: weiToEth(e.value),

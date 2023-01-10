@@ -1,5 +1,7 @@
 ## Biz account connectors
 
+Is a package entended to be used with multiple web3 and web2 providers to interact with blockchains.
+
 ## Get Started
 
 ```javascript

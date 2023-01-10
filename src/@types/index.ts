@@ -55,11 +55,10 @@ export type Providers =
   | 'binance'
   | 'etherscan'
   | 'coinbase'
-  | 'bscscan'
   | 'snowtrace'
   | 'polygonscan';
-export type Chains = 'bsc' | 'eth' | 'polygon' | 'avax';
-export type Assets = 'eth' | 'usdt' | 'dai' | 'btc';
+export type Chains = 'eth' | 'polygon' | 'avax';
+export type Assets = 'eth' | 'usdt' | 'dai' | 'btc' | 'matic' | 'avax';
 
 export type Balance = {
   asset: string;
