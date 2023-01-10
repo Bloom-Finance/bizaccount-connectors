@@ -81,16 +81,26 @@ export class ProviderConnectorImpl
               ).address
             }&address=${address}&tag=latest&apikey=${apiKey}`
           );
-          const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
           if (data.result !== '0') {
-            const retrievedBalance = convertToken(
-              data.result,
+            let retrievedBalance;
+            if (
               getAssetDataByChain(
                 contract,
                 this.chain as Chains,
                 this._provider
-              ).decimalPosition
-            );
+              ).decimalPosition === 18
+            ) {
+              retrievedBalance = weiToEth(data.result);
+            } else {
+              retrievedBalance = convertToken(
+                data.result,
+                getAssetDataByChain(
+                  contract,
+                  this.chain as Chains,
+                  this._provider
+                ).decimalPosition
+              );
+            }
             balance.push({
               asset: contract.token,
               description: getDescription(contract.token),

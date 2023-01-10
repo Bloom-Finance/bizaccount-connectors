@@ -133,6 +133,8 @@ const setProdUrl = (provider: Providers) => {
       return 'https://api.polygonscan.com/api';
     case 'snowtrace':
       return 'https://snowtrace.io/api';
+    case 'circle':
+      return 'https://api.circle.com/v1';
     default:
       return 'https://api.etherscan.io/api';
   }
@@ -147,6 +149,8 @@ const setTestUrl = (provider: Providers) => {
       return 'https://api-testnet.polygonscan.com/api';
     case 'snowtrace':
       return 'https://api-testnet.snowtrace.io/api';
+    case 'circle':
+      return 'https://api-sandbox.circle.com/v1';
     default:
       return 'https://api-goerli.etherscan.io/api';
   }

@@ -41,7 +41,7 @@ export type Contracts = {
 }[];
 export type ProviderCredentials = {
   addresses?: string[];
-  chain: Chains;
+  chain?: Chains;
   provider: {
     id: Providers;
     useTestnet: boolean;
@@ -56,6 +56,7 @@ export type Providers =
   | 'etherscan'
   | 'coinbase'
   | 'snowtrace'
+  | 'circle'
   | 'polygonscan';
 export type Chains = 'eth' | 'polygon' | 'avax';
 export type Assets = 'eth' | 'usdt' | 'dai' | 'btc' | 'matic' | 'avax';
